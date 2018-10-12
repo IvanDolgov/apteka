@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import config
 import telebot
+from telebot import types
 import json
 bot = telebot.TeleBot(config.token)
 
