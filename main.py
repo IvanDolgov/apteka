@@ -71,10 +71,9 @@ def list_medicine(message):
         data = json.loads(json_data)
         b=[]
         for med in  data["medicine"]:
-            b.append(' '.join(map(str, [med, data["medicine"][med]["type"], data["medicine"][med]["date"]])))
+            b.append(str(med)+" ("+str(data["medicine"][med]["type"])+") " + str(data["medicine"][med]["date"]))
         for med1 in sorted(b):
-            bot.send_message(message.chat.id, med1)
-      
+            bot.send_message(message.chat.id, med1)      
         apteka(message)
 
 
