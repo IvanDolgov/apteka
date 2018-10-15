@@ -69,8 +69,12 @@ def list_medicine(message):
     if message.chat.id in config.adminid:
         json_data = open("apteka.json",encoding='utf-8').read()
         data = json.loads(json_data)
+        b=[]
         for med in  data["medicine"]:
-            bot.send_message(message.chat.id, (' '.join(map(str, [med, data["medicine"][med]["type"], data["medicine"][med]["date"]]))))
+            b.append(' '.join(map(str, [med, data["medicine"][med]["type"], data["medicine"][med]["date"]])))
+        for med1 in sorted(b):
+            bot.send_message(message.chat.id, med1)
+      
         apteka(message)
 
 
