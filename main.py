@@ -45,10 +45,13 @@ def del_medicine(message):
         json_data = open("apteka.json",encoding='utf-8').read()
         data = json.loads(json_data)
         keyboard = types.InlineKeyboardMarkup()
-        for med in  data["medicine"]:
-            button = types.InlineKeyboardButton(text=(' '.join(map(str, [med, data["medicine"][med]["type"], data["medicine"][med]["date"]]))), callback_data="del_"+med)
-            keyboard.row(button)
-        bot.send_message(message.chat.id, 'Какое лекарство удалить?', reply_markup=keyboard)
+        if len(data["medicine"]) == 0:
+            bot.send_message(message.chat.id, "Пусто")
+        else:
+            for med in  data["medicine"]:
+                button = types.InlineKeyboardButton(text=(' '.join(map(str, [med, data["medicine"][med]["type"], data["medicine"][med]["date"]]))), callback_data="del_"+med)
+                keyboard.row(button)
+            bot.send_message(message.chat.id, 'Какое лекарство удалить?', reply_markup=keyboard)
 
 @bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and message.json['reply_to_message']['text'] == 'Какое лекарство?')
 def check_medicine(message):
@@ -72,8 +75,11 @@ def list_medicine(message):
         b=[]
         for med in  data["medicine"]:
             b.append(str(med)+" ("+str(data["medicine"][med]["type"])+") " + str(data["medicine"][med]["date"]))
-        for med1 in sorted(b):
-            bot.send_message(message.chat.id, med1)      
+        if len(b) == 0:
+            bot.send_message(message.chat.id, "Пусто")
+        else:
+            for med1 in sorted(b):
+                bot.send_message(message.chat.id, med1)
         apteka(message)
 
 
