@@ -90,10 +90,12 @@ def check_medicine(message):
         json_data = open("apteka.json", encoding='utf-8').read()
         data = json.loads(json_data)
         try:
-            if data["medicine"][message.text.lower()] is not None:
+            if data["medicine"][name] is not None:
                 bot.send_message(message.chat.id, "Такое лекарство уже есть...")
+                #добавить возможность добавки второго
         except KeyError:
             keyboard0 = types.InlineKeyboardMarkup()
+
             for type in config.list_med:
                 button = types.InlineKeyboardButton(text=type, callback_data=type)
                 keyboard0.row(button)
@@ -106,13 +108,10 @@ def check_medicine(message):
 
                 keyboard1 = types.ForceReply(selective=True)
                 bot.send_message(message.chat.id, 'Срок годности лекарства', reply_markup=keyboard1)
-
                 @bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and 'Срок годности лекарства' in message.json['reply_to_message']['text'])
                 def add_date(message):
-                    date_line = re.search('\d{4}-\d{2}-\d{4}|\d{2}.\d{2}.\d{4}|\d{2}-\d{4}|\d{2}.\d{4}', message.text)
+                    date_line = re.search('\d{2}-\d{2}-\d{4}|\d{2}-\d{4}|\d{2}.\d{2}.\d{4}|\d{2}.\d{2}.\d{2}|\d{2}.\d{4}|\d{2}.\d{2}', message.text)
                     date_l = date_line.group(0)
-
-
                     data["medicine"][name] = {"type": type_med, "date": date_l}
                     with open('apteka.json', 'w', encoding='utf-8') as f:
                         str_= json.dumps(data,
