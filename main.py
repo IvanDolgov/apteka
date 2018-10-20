@@ -70,22 +70,6 @@ def check_medicine(message):
 @bot.message_handler(func=lambda message: message.text == 'Список всех лекарств' and message.content_type == 'text')
 def list_medicine(message):
     if message.chat.id in config.adminid:
-        json_data = open("apteka.json",encoding='utf-8').read()
-        data = json.loads(json_data)
-        b=[]
-        for med in  data["medicine"]:
-            b.append(str(med)+" ("+str(data["medicine"][med]["type"])+") " + str(data["medicine"][med]["date"]))
-        if len(b) == 0:
-            bot.send_message(message.chat.id, "Пусто")
-        else:
-            for med1 in sorted(b):
-                bot.send_message(message.chat.id, med1)
-        apteka(message)
-
-
-@bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and message.json['reply_to_message']['text'] == 'Добавить лекарство?')
-def check_medicine(message):
-    if message.chat.id in config.adminid:
         name=message.text.lower()
         json_data = open("apteka.json", encoding='utf-8').read()
         data = json.loads(json_data)
@@ -110,7 +94,7 @@ def check_medicine(message):
                 bot.send_message(message.chat.id, 'Срок годности лекарства', reply_markup=keyboard1)
                 @bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and 'Срок годности лекарства' in message.json['reply_to_message']['text'])
                 def add_date(message):
-                    date_line = re.search('\d{2}-\d{2}-\d{4}|\d{2}-\d{4}|\d{2}.\d{2}.\d{4}|\d{2}.\d{2}.\d{2}|\d{2}.\d{4}|\d{2}.\d{2}', message.text)
+                    date_line = re.search('\d{2}.\d{2}.\d{4}|\d{2}.\d{2}.\d{2}|\d{2}.\d{4}|\d{2}.\d{2}', message.text)
                     date_l = date_line.group(0)
                     data["medicine"][name] = {"type": type_med, "date": date_l}
                     with open('apteka.json', 'w', encoding='utf-8') as f:
