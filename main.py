@@ -3,7 +3,11 @@
 import config
 import telebot
 from telebot import types
+from datetime import datetime
+import datetime as DT
 import json
+import re
+
 bot = telebot.TeleBot(config.token)
 
 @bot.message_handler(commands=['start', 'help'])
@@ -70,6 +74,40 @@ def check_medicine(message):
 @bot.message_handler(func=lambda message: message.text == 'Список всех лекарств' and message.content_type == 'text')
 def list_medicine(message):
     if message.chat.id in config.adminid:
+        json_data = open("apteka.json",encoding='utf-8').read()
+        data = json.loads(json_data)
+        b=[]
+        for med in  data["medicine"]:
+            b.append(str(med)+" ("+str(data["medicine"][med]["type"])+") " + str(data["medicine"][med]["date"]))
+        if len(b) == 0:
+            bot.send_message(message.chat.id, "Пусто")
+        else:
+            for med1 in sorted(b):
+                bot.send_message(message.chat.id, med1)
+        apteka(message)
+
+@bot.message_handler(func=lambda message: message.text == 'Проверить сроки лекарств' and message.content_type == 'text')
+def check_med(message):
+    if message.chat.id in config.adminid:
+        json_data = open("apteka.json",encoding='utf-8').read()
+        data = json.loads(json_data)
+        now=datetime.now()
+        k=0
+        for med in data["medicine"]:
+            try:
+                time_med= DT.datetime.strptime(data["medicine"][med]["date"],'%d.%m.%Y')
+            except ValueError:
+                time_med = DT.datetime.strptime(data["medicine"][med]["date"], '%m.%Y')
+            if now > time_med:
+                bot.send_message(message.chat.id, "Срок годности "+str(med)+" истек: "+ str(data["medicine"][med]["date"]))
+                k+=1
+        if k==0:
+            bot.send_message(message.chat.id,"Нет просроченных")
+        apteka(message)
+
+@bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and message.json['reply_to_message']['text'] == 'Добавить лекарство?')
+def check_medicine(message):
+    if message.chat.id in config.adminid:
         name=message.text.lower()
         json_data = open("apteka.json", encoding='utf-8').read()
         data = json.loads(json_data)
@@ -107,7 +145,6 @@ def list_medicine(message):
                         f.close()
                         apteka(message)
 
-
 @bot.callback_query_handler(func=lambda call: 'del_' in call.data)
 def callback_inline2(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Удалил "+str(call.data[4:]))
@@ -124,3 +161,7 @@ def callback_inline2(call):
                           ensure_ascii=False)
         f.write(str(str_))
         f.close()
+
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
+      
