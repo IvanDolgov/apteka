@@ -108,11 +108,13 @@ def check_med(message):
 @bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and message.json['reply_to_message']['text'] == 'Добавить лекарство?')
 def check_medicine(message):
     if message.chat.id in config.adminid:
+        global name
         name=message.text.lower()
         json_data = open("apteka.json", encoding='utf-8').read()
+        global data
         data = json.loads(json_data)
         try:
-            if data["medicine"][name] is not None:
+            if data["medicine"][message.text.lower()] is not None:
                 bot.send_message(message.chat.id, "Такое лекарство уже есть...")
                 #добавить возможность добавки второго
         except KeyError:
@@ -127,9 +129,9 @@ def check_medicine(message):
             def callback_inline(call):
                 type_med=call.data
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=type_med)
-
                 keyboard1 = types.ForceReply(selective=True)
                 bot.send_message(message.chat.id, 'Срок годности лекарства', reply_markup=keyboard1)
+
                 @bot.message_handler(func=lambda message: message.content_type == 'text' and message.reply_to_message is not None and 'Срок годности лекарства' in message.json['reply_to_message']['text'])
                 def add_date(message):
                     date_line = re.search('\d{2}.\d{2}.\d{4}|\d{2}.\d{2}.\d{2}|\d{2}.\d{4}|\d{2}.\d{2}', message.text)
