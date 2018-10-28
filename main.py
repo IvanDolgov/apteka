@@ -127,6 +127,7 @@ def check_medicine(message):
 
             @bot.callback_query_handler(func=lambda call: call.data in config.list_med)
             def callback_inline(call):
+                global type_med
                 type_med=call.data
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=type_med)
                 keyboard1 = types.ForceReply(selective=True)
